@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
   <title>Anoma 2D — User</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-  <script>eruda.init();</script>
   <!-- Google Login Script -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
-    /* ============ CSS အပြည့်အစုံ (မူရင်းအတိုင်း) ============ */
+    /* ============ CSS အပြည့်အစုံ ============ */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -474,23 +472,6 @@
     .error-msg.show {
       display: block;
     }
-
-    /* admin panel specific */
-    .admin-box { background: #1e293b; padding: 20px; border-radius: 20px; border: 1px solid #7c3aed; }
-    .btn-declare { width: 100%; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 5px; }
-    .text-win { color: #10b981; font-weight: bold; } .text-lose { color: #ef4444; }
-    .section-box { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; }
-    .btn-approve { background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; margin-right: 4px; }
-    .btn-reject { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; }
-    .badge-pending { background: #f59e0b; color: #0f172a; padding: 3px 8px; border-radius: 12px; font-size: 10px; }
-    .badge-approved { background: #10b981; color: white; padding: 3px 8px; border-radius: 12px; font-size: 10px; }
-    .badge-rejected { background: #ef4444; color: white; padding: 3px 8px; border-radius: 12px; font-size: 10px; }
-    .section-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .count-badge { background: #ef4444; color: white; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
-    .flex-grid { display: flex; gap: 10px; }
-    .flex-col { flex: 1; }
-    .payment-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; display: block; }
   </style>
 </head>
 <body>
@@ -514,24 +495,24 @@
       
       <button class="btn-main" onclick="handleLogin()">လော့ဂ်အင် ဝင်မည်</button>
       
-<div style="margin: 20px 0; display: flex; justify-content: center;">
-  <div id="g_id_onload"
-       data-client_id="461518188752-e3662fl2uvnne6fhfc3agrrprku42706.apps.googleusercontent.com"
-       data-context="signin"
-       data-ux_mode="popup"
-       data-callback="handleCredentialResponse"
-       data-auto_prompt="false">
-  </div>
+      <div style="margin: 20px 0; display: flex; justify-content: center;">
+        <div id="g_id_onload"
+             data-client_id="461518188752-e3662fl2uvnne6fhfc3agrrprku42706.apps.googleusercontent.com"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
 
-  <div class="g_id_signin"
-       data-type="standard"
-       data-shape="pill"
-       data-theme="filled_blue"
-       data-text="signin_with"
-       data-size="large"
-       data-logo_alignment="left">
-  </div>
-</div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="pill"
+             data-theme="filled_blue"
+             data-text="signin_with"
+             data-size="large"
+             data-logo_alignment="left">
+        </div>
+      </div>
 
       <span class="toggle-link" onclick="showSection('registerSection')">🆕 အကောင့်သစ်ဖွင့်ရန်</span>
     </div>
@@ -589,7 +570,7 @@
         <div class="balance-amount"><span id="userBalance">0</span> MMK</div>
       </div>
 
-      <!-- TAB CONTENT AREA -->
+      <!-- TAB 1: TASKS / HOME -->
       <div id="tabContentTasks">
         <div class="section-card" style="display:flex; gap:10px;">
           <button class="btn-main btn-deposit" style="flex:1; margin:0;" onclick="openModal('depositModal')">💰 Ngwe Phya</button>
@@ -608,17 +589,17 @@
         </div>
       </div>
 
-      <!-- TAB 3: CONTEST -->
+      <!-- TAB 2: CONTEST -->
       <div id="tabContentContest" class="hidden">
         <div class="section-card" style="display:flex; gap:10px;">
           <button class="btn-main btn-withdraw" style="flex:1; margin:0;" onclick="openModal('withdrawModal')">ငွေထုတ်💸</button>
         </div>
         <div class="section-card">
-          <button class="btn-outline-light" onclick="openTransactionModal()">📩​ငွေသွင်း​/​ငွေထုတ် မှတ်တမ်း📩​</button>
+          <button class="btn-outline-light" onclick="openTransactionModal()">📩 ငွေသွင်း / ငွေထုတ် မှတ်တမ်း 📩</button>
         </div>
       </div>
 
-      <!-- TAB 4: WALLET -->
+      <!-- TAB 3: WALLET / LOGS -->
       <div id="tabContentWallet" class="hidden">
         <div class="section-card">
           <h3 style="color:#10b981;">📊 2D Logs</h3>
@@ -682,9 +663,9 @@
         <button id="btnWithdrawKpay" class="pay-option active" onclick="selectPayment('withdraw','kpay')">🏦 KBZ</button>
         <button id="btnWithdrawWave" class="pay-option" onclick="selectPayment('withdraw','wave')">📱 WavePay</button>
       </div>
-      <input type="number" id="withdrawAmount" class="input-field" placeholder="Amount">
-      <input type="text" id="withdrawReceiverName" class="input-field" placeholder="Name">
-      <input type="text" id="withdrawAccount" class="input-field" placeholder="Phone/Account">
+      <input type="number" id="withdrawAmount" class="input-field" placeholder="Amount" style="margin-bottom: 10px;">
+      <input type="text" id="withdrawReceiverName" class="input-field" placeholder="Name" style="margin-bottom: 10px;">
+      <input type="text" id="withdrawAccount" class="input-field" placeholder="Phone/Account" style="margin-bottom: 10px;">
       <button class="confirm-btn" onclick="submitWithdraw()">✅ Request</button>
     </div>
   </div>
@@ -702,9 +683,8 @@
         <span>📞 Phone: <strong id="kpayPhoneDisplay">Loading...</strong></span>
         <button class="copy-btn" onclick="copyText(document.getElementById('kpayPhoneDisplay').innerText)">Copy</button>
       </div>
-      
-<input type="text" id="kpayTxCode" class="input-field" placeholder="နောက်ဆုံးဂဏန်း ၅ လုံး" maxlength="5" inputmode="numeric" pattern="[0-9]*">
-      <input type="text" id="kpaySenderName" class="input-field" placeholder="Your Name">
+      <input type="text" id="kpayTxCode" class="input-field" placeholder="နောက်ဆုံးဂဏန်း ၅ လုံး" maxlength="5" inputmode="numeric" pattern="[0-9]*" style="margin-bottom: 10px;">
+      <input type="text" id="kpaySenderName" class="input-field" placeholder="Your Name" style="margin-bottom: 10px;">
       <div class="info-row"><span>💎 Amount : </span><strong id="kpayFinalAmount">0 MMK</strong></div>
       <button class="confirm-btn" style="background:#00aa44;" onclick="submitDeposit('kpay')">✅ Transferred</button>
     </div>
@@ -723,8 +703,8 @@
         <span>📞 Phone: <strong id="wavePhoneDisplay">Loading...</strong></span>
         <button class="copy-btn" onclick="copyText(document.getElementById('wavePhoneDisplay').innerText)">Copy</button>
       </div>
-      <input type="text" id="waveTxCode" class="input-field" placeholder="နောက်ဆုံးဂဏန်း ၅ လုံး" maxlength="5" inputmode="numeric" pattern="[0-9]*">
-      <input type="text" id="waveSenderName" class="input-field" placeholder="Your Name">
+      <input type="text" id="waveTxCode" class="input-field" placeholder="နောက်ဆုံးဂဏန်း ၅ လုံး" maxlength="5" inputmode="numeric" pattern="[0-9]*" style="margin-bottom: 10px;">
+      <input type="text" id="waveSenderName" class="input-field" placeholder="Your Name" style="margin-bottom: 10px;">
       <div class="info-row"><span>💎 Amount : </span><strong id="waveFinalAmount">0 MMK</strong></div>
       <button class="confirm-btn" style="background:#00aa44;" onclick="submitDeposit('wave')">✅ Transferred</button>
     </div>
@@ -744,11 +724,8 @@
 
   <!-- ================= SCRIPTS ================= -->
   <script>
-    // ============ GOOGLE LOGIN CALLBACK (ပြင်ဆင်ချက် ၁) ============
+    // ============ GOOGLE LOGIN CALLBACK ============
     function handleCredentialResponse(response) {
-      // Google Sign-In အောင်မြင်ရင် ဒီ function ကိုခေါ်ပါတယ်။
-      // လက်ရှိမှာ Admin အတွက် သီးသန့် login မရှိသေးလို့ ဒီနေရာမှာ ဘာမှမလုပ်သေးပါ။
-      // လိုအပ်ရင် Google Account ကနေ အော်တို Register/Login လုပ်ဖို့ ဒီမှာရေးပါ။
       console.log("Google Sign-In response", response);
       alert("Google Sign-In အောင်မြင်ပါသည်။ (လော့ဂ်အင်အတွက် ဖုန်းနံပါတ်ဖြင့်သာ ဝင်ပါ)");
     }
@@ -801,7 +778,8 @@
     if (activeUser) {
       let users = JSON.parse(localStorage.getItem('users2DDatabase') || '{}');
       if (users[activeUser]) {
-        loginUser(activeUser);
+        // Automatically set view to dashboard if user is validated
+        setTimeout(() => { loginUser(activeUser); }, 100);
       } else {
         localStorage.removeItem('current2DUser');
       }
@@ -893,16 +871,12 @@
     function handleLogin() {
       const id = document.getElementById('loginId').value.trim();
       const pass = document.getElementById('loginPass').value;
-      if (!id || !pass) { alert("ဖုန်းနံပါတ်နှင့် စကားဝှက်ဖြည့်ပါ"); return; }
-      
-      if (id === 'admin') {
-        alert("Admin အတွက် သီးခြား Admin Panel မှသာ ဝင်ရောက်နိုင်ပါသည်။");
-        return;
-      }
-      
       let users = JSON.parse(localStorage.getItem('users2DDatabase') || '{}');
-      if (users[id] === pass) loginUser(id);
-      else alert("ဖုန်းနံပါတ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်");
+      if (users[id] === pass) {
+        loginUser(id);
+      } else {
+        alert("ဖုန်းနံပါတ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်");
+      }
     }
 
     function loginUser(phone) {
@@ -939,12 +913,12 @@
       const amt = parseInt(document.getElementById('betAmount').value);
       if (!activeUser) return;
       let bal = parseInt(localStorage.getItem(getBalanceKey(activeUser)) || '0');
-      if (num.length !== 2 || isNaN(amt) || amt <= 0 || amt > bal) { alert("အချက်အလက်မှား"); return; }
+      if (num.length !== 2 || isNaN(amt) || amt <= 0 || amt > bal) { alert("အချက်အလက်မှား သို့မဟုတ် လက်ကျန်ငွေမလုံလောက်ပါ"); return; }
       localStorage.setItem(getBalanceKey(activeUser), (bal - amt).toString());
       let bets = JSON.parse(localStorage.getItem('twod_bets') || '[]');
       bets.push({ user: activeUser, number: num, amount: amt, status: 'PENDING', date: getFormattedDateTime() });
       localStorage.setItem('twod_bets', JSON.stringify(bets));
-      alert("2D ထိုးပြီး");
+      alert("2D ထိုးပြီးပါပြီ");
       document.getElementById('betNumber').value = '';
       document.getElementById('betAmount').value = '';
       updateDashboardUI();
@@ -956,12 +930,12 @@
       const amt = parseInt(document.getElementById('betAmount3D').value);
       if (!activeUser) return;
       let bal = parseInt(localStorage.getItem(getBalanceKey(activeUser)) || '0');
-      if (num.length !== 3 || isNaN(amt) || amt <= 0 || amt > bal) { alert("အချက်အလက်မှား"); return; }
+      if (num.length !== 3 || isNaN(amt) || amt <= 0 || amt > bal) { alert("အချက်အလက်မှား သို့မဟုတ် လက်ကျန်ငွေမလုံလောက်ပါ"); return; }
       localStorage.setItem(getBalanceKey(activeUser), (bal - amt).toString());
       let bets = JSON.parse(localStorage.getItem('bets3D') || '[]');
       bets.push({ user: activeUser, number: num, amount: amt, status: 'PENDING', date: getFormattedDateTime() });
       localStorage.setItem('bets3D', JSON.stringify(bets));
-      alert("3D ထိုးပြီး");
+      alert("3D ထိုးပြီးပါပြီ");
       document.getElementById('betNumber3D').value = '';
       document.getElementById('betAmount3D').value = '';
       updateDashboardUI();
@@ -1050,10 +1024,10 @@
       if (!amt || amt < 2000) { alert('2000 ကျပ်အထက် ဖြည့်ပါ'); return; }
       closeModal('depositModal');
 
-      const adminKpayName = localStorage.getItem('payment_kpay_name') || 'နံပါတ်​ပြောင်း​နေသည်း';
-      const adminKpayPhone = localStorage.getItem('payment_kpay_phone') || '​​နံပါတ်​ပြောင်း​နေသည်း';
-      const adminWaveName = localStorage.getItem('payment_wave_name') || 'နံပါတ်​ပြောင်း​နေသည်း';
-      const adminWavePhone = localStorage.getItem('payment_wave_phone') || 'နံပါတ်​ပြောင်း​နေသည်း';
+      const adminKpayName = localStorage.getItem('payment_kpay_name') || 'နံပါတ်ပြောင်းနေသည်';
+      const adminKpayPhone = localStorage.getItem('payment_kpay_phone') || 'နံပါတ်ပြောင်းနေသည်';
+      const adminWaveName = localStorage.getItem('payment_wave_name') || 'နံပါတ်ပြောင်းနေသည်';
+      const adminWavePhone = localStorage.getItem('payment_wave_phone') || 'နံပါတ်ပြောင်းနေသည်';
 
       document.getElementById('kpayNameDisplay').innerText = adminKpayName;
       document.getElementById('kpayPhoneDisplay').innerText = adminKpayPhone;
@@ -1086,10 +1060,12 @@
       alert('ငွေဖြည့်တောင်းဆိုချက် ပေးပို့ပြီးပါပြီ');
       closeModal(type + 'TransferModal');
       document.getElementById('depAmt').value = 5000;
+      document.getElementById(type + 'TxCode').value = '';
+      document.getElementById(type + 'SenderName').value = '';
       updateDashboardUI();
     }
 
-    // ============ ပြင်ဆင်ချက် ၂ - WITHDRAW (လက်ကျန်ငွေ ချက်ချင်းမနှုတ်တော့ပါ) ============
+    // ============ WITHDRAW (Admin အတည်ပြုမှ နှုတ်မည့်စနစ်) ============
     function submitWithdraw() {
       const method = currentWithdrawPayment;
       const amt = parseInt(document.getElementById('withdrawAmount').value);
@@ -1100,13 +1076,9 @@
       if (!user) { alert('ကျေးဇူးပြု၍ လော့ဂ်အင် အရင်ဝင်ပါ'); return; }
       let bal = parseInt(localStorage.getItem(getBalanceKey(user)) || '0');
       
-      if (!amt || amt < 10000) { alert('10000 ကျပ်အထက် ထုတ်ပေးပါ'); return; }
+      if (!amt || amt < 10000) { alert('အနည်းဆုံး 10,000 ကျပ်မှ စတင်ထုတ်ယူနိုင်ပါသည်'); return; }
       if (!name || !phone) { alert('အချက်အလက်များ ပြည့်စုံအောင် ဖြည့်ပါ'); return; }
       if (bal < amt) { alert('လက်ကျန်ငွေ မလုံလောက်ပါ'); return; }
-
-      // ❌ ဒီနေရာမှာ လက်ကျန်ငွေကို ချက်ချင်း မနှုတ်တော့ပါ။
-      // localStorage.setItem(getBalanceKey(user), (bal - amt).toString()); 
-      // (Admin က အတည်ပြုမှသာ Admin Panel ဘက်က နှုတ်ပေးပါမည်။)
 
       let reqs = JSON.parse(localStorage.getItem('withdraw_requests') || '[]');
       reqs.push({
@@ -1135,7 +1107,7 @@
     function copyText(txt) { navigator.clipboard.writeText(txt).then(() => alert('ကူးယူပြီး')); }
   </script>
 
-  <!-- 👇 Firebase Code ကို စနစ်တကျ ထည့်သွင်းထားပါတယ် -->
+  <!-- Firebase Code (optional) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
@@ -1153,6 +1125,5 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
   </script>
-
 </body>
 </html>
