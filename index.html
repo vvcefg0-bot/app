@@ -5,9 +5,9 @@
   <title>Anoma 2D — User</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+  <script>eruda.init();</script>
   <!-- Google Login Script -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
     /* ============ CSS အပြည့်အစုံ (မူရင်းအတိုင်း) ============ */
@@ -744,6 +744,15 @@
 
   <!-- ================= SCRIPTS ================= -->
   <script>
+    // ============ GOOGLE LOGIN CALLBACK (ပြင်ဆင်ချက် ၁) ============
+    function handleCredentialResponse(response) {
+      // Google Sign-In အောင်မြင်ရင် ဒီ function ကိုခေါ်ပါတယ်။
+      // လက်ရှိမှာ Admin အတွက် သီးသန့် login မရှိသေးလို့ ဒီနေရာမှာ ဘာမှမလုပ်သေးပါ။
+      // လိုအပ်ရင် Google Account ကနေ အော်တို Register/Login လုပ်ဖို့ ဒီမှာရေးပါ။
+      console.log("Google Sign-In response", response);
+      alert("Google Sign-In အောင်မြင်ပါသည်။ (လော့ဂ်အင်အတွက် ဖုန်းနံပါတ်ဖြင့်သာ ဝင်ပါ)");
+    }
+
     // ============ DATABASE INIT ============
     if (!localStorage.getItem('users2DDatabase')) {
       localStorage.setItem('users2DDatabase', JSON.stringify({ "09123456789": "1234" }));
@@ -1080,19 +1089,24 @@
       updateDashboardUI();
     }
 
+    // ============ ပြင်ဆင်ချက် ၂ - WITHDRAW (လက်ကျန်ငွေ ချက်ချင်းမနှုတ်တော့ပါ) ============
     function submitWithdraw() {
       const method = currentWithdrawPayment;
       const amt = parseInt(document.getElementById('withdrawAmount').value);
       const name = document.getElementById('withdrawReceiverName').value.trim();
       const phone = document.getElementById('withdrawAccount').value.trim();
       const user = activeUser;
+      
       if (!user) { alert('ကျေးဇူးပြု၍ လော့ဂ်အင် အရင်ဝင်ပါ'); return; }
       let bal = parseInt(localStorage.getItem(getBalanceKey(user)) || '0');
+      
       if (!amt || amt < 10000) { alert('10000 ကျပ်အထက် ထုတ်ပေးပါ'); return; }
       if (!name || !phone) { alert('အချက်အလက်များ ပြည့်စုံအောင် ဖြည့်ပါ'); return; }
       if (bal < amt) { alert('လက်ကျန်ငွေ မလုံလောက်ပါ'); return; }
 
-      localStorage.setItem(getBalanceKey(user), (bal - amt).toString());
+      // ❌ ဒီနေရာမှာ လက်ကျန်ငွေကို ချက်ချင်း မနှုတ်တော့ပါ။
+      // localStorage.setItem(getBalanceKey(user), (bal - amt).toString()); 
+      // (Admin က အတည်ပြုမှသာ Admin Panel ဘက်က နှုတ်ပေးပါမည်။)
 
       let reqs = JSON.parse(localStorage.getItem('withdraw_requests') || '[]');
       reqs.push({
@@ -1106,11 +1120,14 @@
         date: getFormattedDateTime(),
         timestamp: Date.now()
       });
+      
       localStorage.setItem('withdraw_requests', JSON.stringify(reqs));
       closeModal('withdrawModal');
+      
       document.getElementById('withdrawAmount').value = '';
       document.getElementById('withdrawReceiverName').value = '';
       document.getElementById('withdrawAccount').value = '';
+      
       updateDashboardUI();
       alert('ငွေထုတ်တောင်းဆိုချက် တင်ပြီးပါပြီ။ ဒိုင်ချုပ်မှ အတည်ပြုပေးပါလိမည်။');
     }
@@ -1118,9 +1135,8 @@
     function copyText(txt) { navigator.clipboard.writeText(txt).then(() => alert('ကူးယူပြီး')); }
   </script>
 
-  <!-- 👇 ဒီနေရာမှာ Firebase Code ကို စနစ်တကျ ထည့်သွင်းပေးထားပါတယ် -->
+  <!-- 👇 Firebase Code ကို စနစ်တကျ ထည့်သွင်းထားပါတယ် -->
   <script type="module">
-    // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
     
