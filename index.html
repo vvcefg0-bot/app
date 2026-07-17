@@ -1,605 +1,354 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
-    <title>Anoma Notes - Email အကောင့်ဖြင့်</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-storage-compat.js"></script>
-    <!-- JSZip -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
+  <title>Anoma Notes • စာသားမှတ်စုများ</title>
+  <!-- Tailwind + Firebase (compat) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
+  <!-- JSZip (ဒေါင်းလုဒ်အတွက်) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-    <style>
-        /* ... (ယခင် CSS အားလုံး မပြောင်းလဲပါ - လိုအပ်ပါက ယခင် style အတိုင်းထားပါ) ... */
-        :root {
-            --bg-primary: #121824;
-            --bg-secondary: #1e2533;
-            --bg-tertiary: #0d1117;
-            --bg-card: #161d2a;
-            --text-primary: #ffffff;
-            --text-secondary: #9ca3af;
-            --text-muted: #6b7280;
-            --accent: #38bdf8;
-            --accent-hover: #7dd3fc;
-            --accent-glow: rgba(56, 189, 248, 0.2);
-            --danger: #f87171;
-            --danger-hover: #fca5a5;
-            --border: #1f2937;
-            --border-light: #374151;
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
-            --radius-2xl: 24px;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
-            --shadow-lg: 0 10px 25px rgba(0,0,0,0.5);
-            --shadow-xl: 0 20px 50px rgba(0,0,0,0.6);
-            --transition-fast: 0.15s ease;
-            --transition-normal: 0.3s ease;
-            --transition-slow: 0.5s ease;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: var(--bg-primary);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            background-image:
-                radial-gradient(ellipse at 20% 20%, rgba(56, 189, 248, 0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(56, 189, 248, 0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(30, 37, 51, 0.5) 0%, transparent 70%);
-            background-attachment: fixed;
-        }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
-        * { scrollbar-width: thin; scrollbar-color: var(--border-light) transparent; }
-
-        .card-shadow { box-shadow: var(--shadow-md); transition: all var(--transition-normal); }
-        .card-shadow:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); border-color: var(--border-light) !important; }
-
-        .photo-card-img { transition: transform var(--transition-normal), filter var(--transition-normal); }
-        .photo-card:hover .photo-card-img { transform: scale(1.03); filter: brightness(1.1); }
-        .photo-card {
-            transition: all var(--transition-normal);
-            animation: fadeInUp 0.4s ease forwards;
-            opacity: 0;
-        }
-        .photo-card:nth-child(1) { animation-delay: 0.05s; }
-        .photo-card:nth-child(2) { animation-delay: 0.1s; }
-        .photo-card:nth-child(3) { animation-delay: 0.15s; }
-        .photo-card:nth-child(4) { animation-delay: 0.2s; }
-        .photo-card:nth-child(5) { animation-delay: 0.25s; }
-        .photo-card:nth-child(6) { animation-delay: 0.3s; }
-        .photo-card:nth-child(7) { animation-delay: 0.35s; }
-        .photo-card:nth-child(8) { animation-delay: 0.4s; }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-            color: white; border: none; padding: 12px 24px;
-            border-radius: var(--radius-md); cursor: pointer; font-weight: 600;
-            font-size: 14px; transition: all var(--transition-normal);
-            position: relative; overflow: hidden;
-            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
-        }
-        .btn-primary:hover { box-shadow: 0 6px 25px rgba(56, 189, 248, 0.5); transform: translateY(-1px); }
-        .btn-primary:active { transform: translateY(0); box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3); }
-        .btn-primary::after {
-            content: ''; position: absolute; top: 50%; left: 50%;
-            width: 0; height: 0; border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-        .btn-primary:active::after { width: 300px; height: 300px; }
-
-        .btn-toolbar {
-            background: var(--bg-tertiary); color: var(--text-secondary);
-            border: 1px solid var(--border); padding: 10px 18px;
-            border-radius: var(--radius-md); cursor: pointer; font-size: 13px;
-            font-weight: 500; transition: all var(--transition-normal); backdrop-filter: blur(4px);
-        }
-        .btn-toolbar:hover {
-            background: var(--bg-secondary); color: var(--text-primary);
-            border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow);
-            transform: translateY(-1px);
-        }
-
-        .custom-input, .custom-textarea {
-            background: var(--bg-tertiary); border: 1px solid var(--border);
-            color: var(--text-primary); border-radius: var(--radius-md);
-            padding: 12px 16px; font-size: 14px; transition: all var(--transition-normal);
-            outline: none; width: 100%;
-        }
-        .custom-input:focus, .custom-textarea:focus {
-            border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow);
-            background: #111827;
-        }
-        .custom-textarea { resize: none; min-height: 60px; }
-        .custom-input::placeholder, .custom-textarea::placeholder { color: var(--text-muted); }
-
-        .file-input-wrapper { position: relative; width: 100%; }
-        .file-input-wrapper input[type="file"] {
-            width: 100%; color: var(--text-secondary); cursor: pointer;
-            padding: 12px 16px; border-radius: var(--radius-md);
-            border: 2px dashed var(--border); background: var(--bg-tertiary);
-            transition: all var(--transition-normal); font-size: 14px;
-        }
-        .file-input-wrapper input[type="file"]:hover { border-color: var(--accent); background: rgba(56, 189, 248, 0.03); }
-        .file-input-wrapper input[type="file"]::file-selector-button {
-            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-            color: white; border: none; padding: 8px 20px; border-radius: 50px;
-            cursor: pointer; font-weight: 600; margin-right: 12px; transition: all var(--transition-normal);
-        }
-        .file-input-wrapper input[type="file"]::file-selector-button:hover { box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4); }
-
-        .glass-card {
-            background: rgba(30, 37, 51, 0.8); backdrop-filter: blur(12px);
-            border: 1px solid var(--border); border-radius: var(--radius-2xl);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .skeleton {
-            background: linear-gradient(90deg, var(--bg-tertiary) 25%, #1e293b 50%, var(--bg-tertiary) 75%);
-            background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite;
-            border-radius: var(--radius-md);
-        }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-
-        .toast {
-            position: fixed; bottom: 24px; right: 24px;
-            background: var(--bg-secondary); color: var(--text-primary);
-            padding: 14px 20px; border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg); border: 1px solid var(--border);
-            z-index: 1000; animation: slideInUp 0.3s ease, fadeOut 0.3s ease 2.5s forwards;
-            font-size: 14px; max-width: 380px; display: flex; align-items: center; gap: 10px;
-        }
-        .toast.success { border-left: 4px solid #34d399; }
-        .toast.error { border-left: 4px solid #f87171; }
-        .toast.info { border-left: 4px solid #38bdf8; }
-        @keyframes slideInUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
-        .pulse-dot {
-            width: 8px; height: 8px; background: #34d399; border-radius: 50%;
-            display: inline-block; animation: pulse 2s ease-in-out infinite;
-        }
-        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); } 50% { box-shadow: 0 0 0 10px rgba(52, 211, 153, 0); } }
-
-        .empty-state { text-align: center; padding: 48px 24px; animation: fadeInUp 0.5s ease; }
-        .empty-state-icon { font-size: 64px; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        .profile-ring { border: 2px solid var(--accent); box-shadow: 0 0 15px var(--accent-glow); transition: all var(--transition-normal); }
-        .profile-ring:hover { box-shadow: 0 0 25px rgba(56, 189, 248, 0.4); }
-        .logout-btn { transition: all var(--transition-normal); }
-        .logout-btn:hover { background: rgba(248, 113, 113, 0.2) !important; box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15); }
-        .note-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-
-        /* Tabs for Login/Register */
-        .auth-tab {
-            cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent;
-            transition: all var(--transition-normal); font-weight: 500;
-        }
-        .auth-tab.active { border-bottom-color: var(--accent); color: var(--accent); }
-    </style>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --danger: #f87171;
+      --radius: 18px;
+    }
+    body {
+      background: var(--bg);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      color: var(--text);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 0.7rem 1.5rem;
+      border-radius: 40px;
+      transition: 0.2s;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(56,189,248,0.3);
+    }
+    .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .input-field {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: white;
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      outline: none;
+      width: 100%;
+      transition: 0.2s;
+    }
+    .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56,189,248,0.2); }
+    .note-card {
+      background: #0f172a;
+      border-radius: 20px;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      transition: 0.2s;
+    }
+    .note-card:hover { border-color: #475569; }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1e293b;
+      border-left: 4px solid #38bdf8;
+      padding: 12px 20px;
+      border-radius: 12px;
+      color: white;
+      z-index: 999;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="w-full max-w-2xl">
+  <!-- AUTH SECTION -->
+  <div id="authBox" class="card w-full p-8 text-center space-y-5">
+    <div class="text-5xl">📝</div>
+    <h1 class="text-3xl font-bold text-sky-400">Anoma Notes</h1>
+    <p class="text-sm text-gray-400">စာသားမှတ်စုများ • Cloud Sync</p>
 
-    <!-- Login/Register Section -->
-    <div id="auth-section" class="w-full max-w-sm p-8 bg-[#1e2533] rounded-3xl shadow-2xl text-center border border-gray-800">
-        <div class="text-5xl mb-4" style="animation: float 3s ease-in-out infinite;">📓</div>
-        <h1 class="text-3xl font-bold text-sky-400 mb-2">Anoma Notes</h1>
-        <p class="text-sm text-gray-400 mb-6">ဘယ်စက်ကဝင်ဝင် သင့်မှတ်စုများ အမြဲရှိနေမည်</p>
-
-        <!-- Tabs -->
-        <div class="flex justify-center mb-6 border-b border-gray-800">
-            <span id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">အကောင့်ဝင်ရန်</span>
-            <span id="tab-register" class="auth-tab text-gray-400" onclick="switchAuthTab('register')">အကောင့်ဖွင့်ရန်</span>
-        </div>
-
-        <!-- Login Form -->
-        <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
-            <input type="email" id="login-email" placeholder="Email" class="custom-input" required>
-            <input type="password" id="login-password" placeholder="Password" class="custom-input" required>
-            <button type="submit" class="btn-primary w-full">အကောင့်ဝင်မည်</button>
-        </form>
-
-        <!-- Register Form (hidden by default) -->
-        <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-            <input type="email" id="reg-email" placeholder="Email" class="custom-input" required>
-            <input type="password" id="reg-password" placeholder="Password (အနည်းဆုံး ၆လုံး)" class="custom-input" minlength="6" required>
-            <button type="submit" class="btn-primary w-full">အကောင့်အသစ်ဖွင့်မည်</button>
-        </form>
-        <p id="auth-error" class="text-red-400 text-xs mt-3 hidden"></p>
+    <div class="flex justify-center gap-4 border-b border-gray-700 pb-2">
+      <span id="tabLogin" class="cursor-pointer text-sky-400 border-b-2 border-sky-400 pb-1" onclick="switchTab('login')">အကောင့်ဝင်ရန်</span>
+      <span id="tabRegister" class="cursor-pointer text-gray-400" onclick="switchTab('register')">အကောင့်ဖွင့်ရန်</span>
     </div>
 
-    <!-- Main App Dashboard -->
-    <div id="app-section"
-         class="w-full max-w-4xl bg-[#1e2533] p-6 rounded-3xl shadow-2xl hidden border border-gray-800"
-         style="animation: fadeInUp 0.4s ease;">
+    <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-3">
+      <input type="email" id="lemail" placeholder="Email" class="input-field" required>
+      <input type="password" id="lpassword" placeholder="Password" class="input-field" required>
+      <button type="submit" class="btn-primary w-full">ဝင်မည်</button>
+    </form>
 
-        <!-- Header -->
-        <div class="flex items-center justify-between border-b border-gray-800 pb-4 mb-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full profile-ring bg-sky-500/20 flex items-center justify-center text-sky-400 font-bold text-lg" id="user-avatar-placeholder">U</div>
-                <div>
-                    <h2 id="user-name" class="font-bold text-white text-lg">Welcome</h2>
-                    <p class="text-xs text-sky-400 flex items-center gap-1.5">
-                        <span class="pulse-dot"></span> Cloud Sync Activated
-                    </p>
-                </div>
-            </div>
-            <button onclick="logout()"
-                    class="logout-btn text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold px-4 py-2 rounded-full transition">
-                Log Out
-            </button>
-        </div>
+    <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-3 hidden">
+      <input type="email" id="remail" placeholder="Email" class="input-field" required>
+      <input type="password" id="rpassword" placeholder="Password (၆ လုံးအထက်)" class="input-field" minlength="6" required>
+      <button type="submit" class="btn-primary w-full">အကောင့်ဖွင့်မည်</button>
+    </form>
+    <p id="authError" class="text-red-400 text-xs hidden"></p>
+  </div>
 
-        <!-- Add Photo Note -->
-        <div class="mb-6 bg-[#121824] rounded-2xl p-4 border border-gray-800">
-            <div class="file-input-wrapper mb-3">
-                <input type="file" id="imageInput" accept="image/*">
-            </div>
-            <textarea id="noteInput" rows="2" class="custom-textarea" placeholder="ဤဓာတ်ပုံအတွက် မှတ်စုရေးပါ..."></textarea>
-            <button onclick="addPhotoNote()" class="btn-primary mt-3 w-full">ဓာတ်ပုံမှတ်စု သိမ်းမည်</button>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="flex flex-wrap gap-3 mb-4">
-            <button onclick="downloadAllAsZip()" class="btn-toolbar">📥 ZIP ဒေါင်းလုဒ်</button>
-            <button onclick="backupData()" class="btn-toolbar">📦 Backup JSON</button>
-            <button onclick="document.getElementById('restoreInput').click()" class="btn-toolbar">📂 Restore</button>
-            <input type="file" id="restoreInput" accept=".json" onchange="restoreData(event)" class="hidden">
-        </div>
-
-        <!-- Photo Grid -->
+  <!-- MAIN APP (hidden initially) -->
+  <div id="appBox" class="card w-full p-6 hidden space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400 font-bold" id="avatarLetter">U</div>
         <div>
-            <h3 class="font-bold text-gray-400 text-sm mb-3 uppercase tracking-wider">ကျွန်ုပ်၏ ဓာတ်ပုံမှတ်စုများ</h3>
-            <div id="photoGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                <div class="text-gray-500 text-sm text-center col-span-full py-8" id="loading-message">
-                    <div class="skeleton w-16 h-16 rounded-full mx-auto mb-4"></div>
-                    <div class="skeleton w-32 h-4 mx-auto mb-2"></div>
-                    <div class="skeleton w-24 h-3 mx-auto"></div>
-                    <p class="mt-3 text-gray-500">စောင့်ဆိုင်းနေသည်...</p>
-                </div>
-            </div>
+          <p id="userEmail" class="font-semibold text-white">user</p>
+          <p class="text-xs text-emerald-400 flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> အွန်လိုင်း</p>
         </div>
+      </div>
+      <button onclick="logout()" class="text-sm text-red-400 bg-red-400/10 px-4 py-2 rounded-full hover:bg-red-400/20">ထွက်မည်</button>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toast-container"></div>
+    <!-- Add Note -->
+    <div class="bg-[#0f172a] rounded-2xl p-4 border border-gray-700">
+      <textarea id="noteText" rows="3" class="input-field" placeholder="မှတ်စုအသစ် ရိုက်ထည့်ပါ..."></textarea>
+      <button onclick="addNote()" class="btn-primary mt-3 w-full">➕ မှတ်စုသိမ်းမည်</button>
+    </div>
 
-    <script>
-        // ---------- FIREBASE CONFIG (သင့်ရဲ့ Config ထည့်ပါ) ----------
-        const firebaseConfig = {
-                apiKey: "AIzaSyANqocAK2MD4L2X8PJw-WyemJE9pOBG99g",
-             authDomain: "photo-netes.firebaseapp.com",   
-                projectId: "photo-netes",
-             storageBucket: "photo-netes.firebasestorage.app",   
-                messagingSenderId: "779779827135",
-                appId: "1:779779827135:web:038c1d22467ffd43a42d0a",
+    <!-- Toolbar -->
+    <div class="flex flex-wrap gap-2">
+      <button onclick="exportJSON()" class="text-sm bg-gray-800 px-4 py-2 rounded-full border border-gray-700 hover:border-sky-400 transition">📦 Backup</button>
+      <button onclick="document.getElementById('restoreFile').click()" class="text-sm bg-gray-800 px-4 py-2 rounded-full border border-gray-700 hover:border-sky-400 transition">📂 Restore</button>
+      <input type="file" id="restoreFile" accept=".json" onchange="restoreNotes(event)" class="hidden">
+    </div>
+
+    <!-- Notes List -->
+    <div>
+      <h3 class="text-xs uppercase tracking-widest text-gray-500 mb-3">ကျွန်ုပ်၏ မှတ်စုများ</h3>
+      <div id="notesContainer" class="grid gap-3">
+        <p class="text-gray-500 text-center py-10 col-span-full" id="loadingHint">စောင့်ဆိုင်းနေသည်...</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script>
+    // ---------- FIREBASE CONFIG (သင့် config ထည့်ပါ) ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyANqocAK2MD4L2X8PJw-WyemJE9pOBG99g",
+      authDomain: "photo-netes.firebaseapp.com",
+      projectId: "photo-netes",
+      storageBucket: "photo-netes.firebasestorage.app",
+      messagingSenderId: "779779827135",
+      appId: "1:779779827135:web:038c1d22467ffd43a42d0a",
       measurementId: "G-ZNJNPZV1R6"
-        };
+    };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
-        const notesCollection = db.collection("photoNotes");
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    // Text notes collection
+    const notesCol = db.collection("textNotes");
 
-        // ---------- TOAST ----------
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icons = { success: '✅', error: '❌', info: 'ℹ️' };
-            toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
-        }
+    // ---------- TOAST ----------
+    function toast(msg, success = true) {
+      const div = document.createElement('div');
+      div.className = 'toast';
+      div.style.borderLeftColor = success ? '#34d399' : '#f87171';
+      div.innerText = msg;
+      document.getElementById('toastContainer').appendChild(div);
+      setTimeout(() => div.remove(), 2800);
+    }
 
-        // ---------- AUTH UI SWITCH ----------
-        function switchAuthTab(tab) {
-            const loginForm = document.getElementById('login-form');
-            const registerForm = document.getElementById('register-form');
-            const tabLogin = document.getElementById('tab-login');
-            const tabRegister = document.getElementById('tab-register');
-            const errorEl = document.getElementById('auth-error');
-            errorEl.classList.add('hidden');
+    // ---------- TAB SWITCH ----------
+    function switchTab(tab) {
+      document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+      document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+      document.getElementById('tabLogin').classList.toggle('text-sky-400', tab === 'login');
+      document.getElementById('tabLogin').classList.toggle('border-b-2', tab === 'login');
+      document.getElementById('tabRegister').classList.toggle('text-sky-400', tab === 'register');
+      document.getElementById('tabRegister').classList.toggle('border-b-2', tab === 'register');
+      document.getElementById('authError').classList.add('hidden');
+    }
 
-            if (tab === 'login') {
-                loginForm.classList.remove('hidden');
-                registerForm.classList.add('hidden');
-                tabLogin.classList.add('active', 'text-sky-400');
-                tabLogin.classList.remove('text-gray-400');
-                tabRegister.classList.remove('active', 'text-sky-400');
-                tabRegister.classList.add('text-gray-400');
-            } else {
-                loginForm.classList.add('hidden');
-                registerForm.classList.remove('hidden');
-                tabRegister.classList.add('active', 'text-sky-400');
-                tabRegister.classList.remove('text-gray-400');
-                tabLogin.classList.remove('active', 'text-sky-400');
-                tabLogin.classList.add('text-gray-400');
-            }
-        }
+    // ---------- AUTH ----------
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('lemail').value.trim();
+      const pass = document.getElementById('lpassword').value;
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(() => toast('အကောင့်ဝင်ပြီးပါပြီ'))
+        .catch(err => showAuthError(err.code));
+    }
 
-        // ---------- LOGIN ----------
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            const errorEl = document.getElementById('auth-error');
-            errorEl.classList.add('hidden');
+    function handleRegister(e) {
+      e.preventDefault();
+      const email = document.getElementById('remail').value.trim();
+      const pass = document.getElementById('rpassword').value;
+      auth.createUserWithEmailAndPassword(email, pass)
+        .then(() => toast('အကောင့်ဖွင့်ပြီးပါပြီ'))
+        .catch(err => showAuthError(err.code));
+    }
 
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => showToast('အကောင့်ဝင်ပြီးပါပြီ', 'success'))
-                .catch(err => {
-                    errorEl.textContent = getAuthErrorMessage(err.code);
-                    errorEl.classList.remove('hidden');
-                });
-        }
+    function showAuthError(code) {
+      const el = document.getElementById('authError');
+      el.classList.remove('hidden');
+      if (code === 'auth/invalid-email') el.innerText = 'Email မှားယွင်းနေပါသည်';
+      else if (code === 'auth/user-not-found') el.innerText = 'အကောင့်မရှိပါ';
+      else if (code === 'auth/wrong-password') el.innerText = 'စကားဝှက်မှားနေသည်';
+      else if (code === 'auth/email-already-in-use') el.innerText = 'ဤ Email ကိုသုံးထားပြီး';
+      else if (code === 'auth/weak-password') el.innerText = 'စကားဝှက် အနည်းဆုံး ၆လုံး';
+      else el.innerText = 'အမှားရှိနေသည် (ထပ်စမ်းပါ)';
+    }
 
-        // ---------- REGISTER ----------
-        function handleRegister(e) {
-            e.preventDefault();
-            const email = document.getElementById('reg-email').value.trim();
-            const password = document.getElementById('reg-password').value;
-            const errorEl = document.getElementById('auth-error');
-            errorEl.classList.add('hidden');
+    function logout() {
+      auth.signOut();
+      toast('အကောင့်ထွက်ပြီးပါပြီ');
+    }
 
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(() => showToast('အကောင့်ဖွင့်ပြီးပါပြီ', 'success'))
-                .catch(err => {
-                    errorEl.textContent = getAuthErrorMessage(err.code);
-                    errorEl.classList.remove('hidden');
-                });
-        }
+    // ---------- AUTH STATE ----------
+    auth.onAuthStateChanged(user => {
+      document.getElementById('authBox').classList.toggle('hidden', !!user);
+      document.getElementById('appBox').classList.toggle('hidden', !user);
+      if (user) {
+        document.getElementById('userEmail').innerText = user.email;
+        document.getElementById('avatarLetter').innerText = (user.email || 'U')[0].toUpperCase();
+        listenNotes(user.uid);
+      }
+    });
 
-        function getAuthErrorMessage(code) {
-            switch (code) {
-                case 'auth/invalid-email': return 'Email လိပ်စာ မမှန်ပါ';
-                case 'auth/user-not-found': return 'ဒီ Email ဖြင့် အကောင့်မရှိပါ';
-                case 'auth/wrong-password': return 'စကားဝှက် မှားနေပါသည်';
-                case 'auth/email-already-in-use': return 'ဒီ Email ကို အသုံးပြုထားပြီးဖြစ်သည်';
-                case 'auth/weak-password': return 'စကားဝှက် အနည်းဆုံး ၆လုံး ထားပါ';
-                default: return 'အကောင့်ဝင်မရပါ (ထပ်စမ်းကြည့်ပါ)';
-            }
-        }
-
-        // ---------- LOGOUT ----------
-        function logout() {
-            auth.signOut();
-            showToast('အကောင့်ထွက်ပြီးပါပြီ', 'info');
-        }
-
-        // ---------- AUTH STATE ----------
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('app-section').classList.remove('hidden');
-                document.getElementById('user-name').innerText = user.email || "User";
-                document.getElementById('user-avatar-placeholder').innerText = (user.email || 'U')[0].toUpperCase();
-                startListening(user.uid);
-            } else {
-                document.getElementById('auth-section').classList.remove('hidden');
-                document.getElementById('app-section').classList.add('hidden');
-            }
+    // ---------- REAL‑TIME LISTENER ----------
+    let unsub = null;
+    function listenNotes(uid) {
+      if (unsub) unsub();
+      unsub = notesCol
+        .where("uid", "==", uid)
+        .orderBy("createdAt", "desc")
+        .onSnapshot(snap => {
+          const notes = [];
+          snap.forEach(doc => notes.push({ id: doc.id, ...doc.data() }));
+          renderNotes(notes);
+        }, err => {
+          toast('စာရင်းဖွင့်မရပါ', false);
         });
+    }
 
-        // ---------- FIRESTORE REAL-TIME (filter by uid) ----------
-        let unsubscribe = null;
-        function startListening(uid) {
-            if (unsubscribe) unsubscribe();
-            unsubscribe = notesCollection
-                .where("uid", "==", uid)
-                .orderBy("createdAt", "desc")
-                .onSnapshot(snapshot => {
-                    const photos = [];
-                    snapshot.forEach(doc => photos.push({ id: doc.id, ...doc.data() }));
-                    renderPhotoGrid(photos);
-                }, error => {
-                    console.error("Firestore error:", error);
-                    document.getElementById('photoGrid').innerHTML =
-                        '<div class="text-red-400 col-span-full text-center py-8">❌ Data load error!</div>';
-                    showToast('ဒေတာ ဖွင့်မရပါ', 'error');
-                });
-        }
+    // ---------- ADD NOTE (text only) ----------
+    async function addNote() {
+      const text = document.getElementById('noteText').value.trim();
+      if (!text) return toast('မှတ်စုရေးပါ', false);
+      const user = auth.currentUser;
+      if (!user) return;
+      try {
+        await notesCol.add({
+          uid: user.uid,
+          text: text,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById('noteText').value = '';
+        toast('သိမ်းဆည်းပြီး');
+      } catch (e) {
+        toast('မအောင်မြင်ပါ', false);
+      }
+    }
 
-        // ---------- ADD PHOTO NOTE ----------
-        async function addPhotoNote() {
-            const fileInput = document.getElementById('imageInput');
-            const noteInput = document.getElementById('noteInput');
-            const file = fileInput.files[0];
-            if (!file) return showToast('ဓာတ်ပုံရွေးပါ', 'error');
+    // ---------- DELETE ----------
+    async function deleteNote(id) {
+      if (!confirm('ဤမှတ်စုကိုဖျက်မှာလား')) return;
+      await notesCol.doc(id).delete();
+      toast('ဖျက်ပြီး');
+    }
 
-            const user = auth.currentUser;
-            if (!user) return showToast('အကောင့်ဝင်ထားရန် လိုပါသည်', 'error');
+    // ---------- RENDER ----------
+    function renderNotes(notes) {
+      const container = document.getElementById('notesContainer');
+      if (!notes.length) {
+        container.innerHTML = `<div class="text-center py-16 text-gray-500">
+          <div class="text-5xl mb-3">📭</div><p>မှတ်စုမရှိသေးပါ</p></div>`;
+        return;
+      }
+      container.innerHTML = notes.map((n, i) => `
+        <div class="note-card flex justify-between items-start gap-2">
+          <div class="flex-1">
+            <p class="text-white whitespace-pre-wrap break-words">${escapeHtml(n.text)}</p>
+            <span class="text-xs text-gray-500 mt-2 block">#${i+1}</span>
+          </div>
+          <button onclick="deleteNote('${n.id}')" class="text-red-400 hover:text-red-300 text-xl" title="ဖျက်မည်">🗑️</button>
+        </div>
+      `).join('');
+    }
 
-            const storageRef = storage.ref(`photos/${user.uid}/${Date.now()}_${file.name}`);
-            try {
-                showToast('သိမ်းဆည်းနေသည်...', 'info');
-                const uploadTask = await storageRef.put(file);
-                const downloadURL = await uploadTask.ref.getDownloadURL();
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.innerText = str;
+      return div.innerHTML;
+    }
 
-                await notesCollection.add({
-                    uid: user.uid,
-                    imageUrl: downloadURL,
-                    note: noteInput.value.trim(),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+    // ---------- BACKUP / RESTORE (JSON) ----------
+    async function exportJSON() {
+      const user = auth.currentUser;
+      if (!user) return;
+      const snap = await notesCol.where("uid", "==", user.uid).orderBy("createdAt","desc").get();
+      const data = [];
+      snap.forEach(doc => data.push({ text: doc.data().text, createdAt: doc.data().createdAt?.toDate?.() || null }));
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `anoma_notes_backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      toast('Backup ဒေါင်းလုဒ်ပြီး');
+    }
 
-                fileInput.value = '';
-                noteInput.value = '';
-                showToast('သိမ်းဆည်းပြီးပါပြီ', 'success');
-            } catch (err) {
-                showToast('သိမ်းဆည်းမှု မအောင်မြင်ပါ: ' + err.message, 'error');
-            }
-        }
-
-        // ---------- DELETE ----------
-        async function deletePhotoNote(id, imageUrl) {
-            if (!confirm('ဖျက်မှာသေချာလား?')) return;
-            try {
-                await notesCollection.doc(id).delete();
-                if (imageUrl) {
-                    const imageRef = storage.refFromURL(imageUrl);
-                    await imageRef.delete().catch(() => {});
-                }
-                showToast('ဖျက်ပြီးပါပြီ', 'success');
-            } catch (err) {
-                showToast('ဖျက်မအောင်မြင်ပါ: ' + err.message, 'error');
-            }
-        }
-
-        // ---------- DOWNLOAD SINGLE ----------
-        function downloadSingle(url) {
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = '';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast('ဒေါင်းလုဒ်ဆွဲပြီးပါပြီ', 'success');
-        }
-
-        // ---------- ZIP DOWNLOAD ----------
-        async function downloadAllAsZip() {
-            const photos = await getCurrentPhotos();
-            if (photos.length === 0) return showToast('ဒေါင်းလုဒ်လုပ်စရာ မရှိပါ', 'info');
-            showToast('ZIP ပြင်ဆင်နေသည်...', 'info');
-            const zip = new JSZip();
-            const folder = zip.folder("anoma_photos");
-            const promises = photos.map(async (photo, idx) => {
-                try {
-                    const response = await fetch(photo.imageUrl);
-                    const blob = await response.blob();
-                    const ext = blob.type.split('/')[1] || 'jpg';
-                    folder.file(`photo_${idx+1}.${ext}`, blob);
-                    if (photo.note) folder.file(`note_${idx+1}.txt`, photo.note);
-                } catch (e) { console.warn(e); }
+    async function restoreNotes(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (!confirm('လက်ရှိမှတ်စုများထဲသို့ ထည့်သွင်းမည်။ ဆက်လုပ်မလား')) { event.target.value=''; return; }
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const arr = JSON.parse(e.target.result);
+          if (!Array.isArray(arr)) throw new Error('ဖိုင်ပုံစံမမှန်');
+          const batch = db.batch();
+          const user = auth.currentUser;
+          arr.forEach(item => {
+            const ref = notesCol.doc();
+            batch.set(ref, {
+              uid: user.uid,
+              text: item.text || '',
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            await Promise.all(promises);
-            const zipBlob = await zip.generateAsync({ type: "blob" });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(zipBlob);
-            link.download = "anoma_notes_all.zip";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-            showToast('ZIP ဒေါင်းလုဒ် ပြီးပါပြီ', 'success');
+          });
+          await batch.commit();
+          toast(`${arr.length} ခု restore လုပ်ပြီး`);
+        } catch (err) {
+          toast('Restore မအောင်မြင်ပါ', false);
         }
-
-        // ---------- BACKUP JSON ----------
-        async function backupData() {
-            const photos = await getCurrentPhotos();
-            if (photos.length === 0) return showToast('Backup လုပ်စရာ မရှိပါ', 'info');
-            const jsonStr = JSON.stringify(photos, null, 2);
-            const blob = new Blob([jsonStr], { type: 'application/json' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `anoma_backup_${new Date().toISOString().slice(0,10)}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-            showToast('Backup ဒေါင်းလုဒ် ပြီးပါပြီ', 'success');
-        }
-
-        // ---------- RESTORE ----------
-        async function restoreData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (!confirm('လက်ရှိဒေတာများ ထပ်မံပေါင်းထည့်မည်။ ဆက်လုပ်မလား?')) {
-                event.target.value = ''; return;
-            }
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (!Array.isArray(data)) throw new Error('Invalid format');
-                    const batch = db.batch();
-                    data.forEach(item => {
-                        const docRef = notesCollection.doc();
-                        batch.set(docRef, {
-                            uid: auth.currentUser.uid,
-                            imageUrl: item.imageUrl,
-                            note: item.note || "",
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    });
-                    await batch.commit();
-                    showToast(`${data.length} ခု restore လုပ်ပြီးပါပြီ`, 'success');
-                } catch (err) {
-                    showToast('Restore မအောင်မြင်ပါ: ' + err.message, 'error');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        async function getCurrentPhotos() {
-            const user = auth.currentUser;
-            if (!user) return [];
-            const snapshot = await notesCollection
-                .where("uid", "==", user.uid)
-                .orderBy("createdAt", "desc")
-                .get();
-            const photos = [];
-            snapshot.forEach(doc => photos.push({ id: doc.id, ...doc.data() }));
-            return photos;
-        }
-
-        function renderPhotoGrid(photos) {
-            const grid = document.getElementById('photoGrid');
-            if (!photos || photos.length === 0) {
-                grid.innerHTML = `<div class="empty-state col-span-full">
-                    <div class="empty-state-icon">🖼️</div>
-                    <p class="text-gray-400 text-lg font-medium mb-1">ဓာတ်ပုံမှတ်စု မရှိသေးပါ</p>
-                    <p class="text-gray-500 text-sm">အပေါ်မှ ဓာတ်ပုံတစ်ပုံရွေးပြီး စတင်ပါ</p>
-                </div>`;
-                return;
-            }
-            grid.innerHTML = photos.map((p, idx) => `
-                <div class="photo-card bg-[#161d2a] rounded-xl overflow-hidden card-shadow border border-gray-800"
-                     style="animation-delay: ${idx * 0.06}s;">
-                    <div class="relative overflow-hidden">
-                        <img src="${p.imageUrl}" alt="photo" class="photo-card-img w-full h-40 object-cover cursor-pointer"
-                             onclick="downloadSingle('${p.imageUrl}')" loading="lazy">
-                        <div class="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">${idx+1}</div>
-                    </div>
-                    <div class="p-3 text-sm text-gray-300 note-text">${escapeHtml(p.note) || '<span class="text-gray-600 italic">(မှတ်စုမရှိ)</span>'}</div>
-                    <div class="flex justify-around border-t border-gray-800/50 py-2.5 text-xs">
-                        <button onclick="downloadSingle('${p.imageUrl}')" class="text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1">📥 ဒေါင်းလုဒ်</button>
-                        <button onclick="deletePhotoNote('${p.id}', '${p.imageUrl}')" class="text-red-400 hover:text-red-300 transition-colors flex items-center gap-1">🗑 ဖျက်မယ်</button>
-                    </div>
-                </div>
-            `).join('');
-            document.getElementById('loading-message')?.remove();
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.appendChild(document.createTextNode(text));
-            return div.innerHTML;
-        }
-    </script>
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+  </script>
 </body>
 </html>
