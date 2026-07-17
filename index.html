@@ -788,6 +788,16 @@
       }
     }
 
+    // ============ AUTO LOGIN ============
+    if (activeUser) {
+      let users = JSON.parse(localStorage.getItem('users2DDatabase') || '{}');
+      if (users[activeUser]) {
+        loginUser(activeUser);
+      } else {
+        localStorage.removeItem('current2DUser');
+      }
+    }
+
     function loadUserAvatar() {
       if (activeUser) {
         const savedAvatar = localStorage.getItem(getAvatarKey(activeUser));
@@ -813,7 +823,7 @@
       alert('🔒 ကိုယ်ရေးအချက်အလက် မူဝါဒ\n\n' +
         '• သင့်ဖုန်းနံပါတ်ကို အကောင့်ဖွင့်ရန်အတွက်သာ အသုံးပြုပါသည်။\n' +
         '• သင့်အချက်အလက်များကို ပြင်ပသို့ မျှဝေခြင်းမပြုပါ။\n' +
-        '• ငွေပေးချေမှုအချက်အလက်များကို လုံခြုံစွာ သိမ်းဆည်းထားပါသည်။\n' +
+        '• Ngwe Payချေမှုအချက်အလက်များကို လုံခြုံစွာ သိမ်းဆည်းထားပါသည်။\n' +
         '• အကောင့်ဖျက်သိမ်းလိုပါက ဒိုင်ချုပ်ထံ ဆက်သွယ်နိုင်ပါသည်။');
     }
 
@@ -1045,7 +1055,7 @@
       openModal(currentDepositPayment + 'TransferModal');
     }
 
-        function submitDeposit(type) {
+    function submitDeposit(type) {
       const tx = document.getElementById(type + 'TxCode').value;
       const name = document.getElementById(type + 'SenderName').value;
       const amt = parseInt(document.getElementById('depAmt').value) || 0;
@@ -1057,7 +1067,7 @@
         amount: amt,
         method: type,
         txCode: tx,
-        last5: tx,           // 👈 ဤစာကြောင်းအသစ်ကို ထည့်ပေးလိုက်ပါပြီ (Admin ဖတ်ဖို့အတွက်)
+        last5: tx,
         senderName: name,
         status: 'PENDING',
         date: getFormattedDateTime(),
@@ -1069,8 +1079,6 @@
       document.getElementById('depAmt').value = 5000;
       updateDashboardUI();
     }
-
-        
 
     function submitWithdraw() {
       const method = currentWithdrawPayment;
@@ -1108,16 +1116,27 @@
     }
 
     function copyText(txt) { navigator.clipboard.writeText(txt).then(() => alert('ကူးယူပြီး')); }
-
-    // ============ AUTO LOGIN ============
-    if (activeUser) {
-      let users = JSON.parse(localStorage.getItem('users2DDatabase') || '{}');
-      if (users[activeUser]) {
-        loginUser(activeUser);
-      } else {
-        localStorage.removeItem('current2DUser');
-      }
-    }
   </script>
+
+  <!-- 👇 ဒီနေရာမှာ Firebase Code ကို စနစ်တကျ ထည့်သွင်းပေးထားပါတယ် -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyCS4Uurb2Z71zBBS38rAeyficMKysv0clY",
+      authDomain: "app2d3d.firebaseapp.com",
+      projectId: "app2d3d",
+      storageBucket: "app2d3d.firebasestorage.app",
+      messagingSenderId: "461518188752",
+      appId: "1:461518188752:web:f1b34622199661222daed5",
+      measurementId: "G-N86L39TNXB"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
+
 </body>
 </html>
