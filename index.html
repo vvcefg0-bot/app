@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <title>Anoma 2D — User</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <!-- Google Login Script -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <style>
-    /* ============ CSS အပြည့်အစုံ (မူရင်းအတိုင်း) ============ */
+    /* ============ CSS အပြည့်အစုံ ============ */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -21,6 +24,7 @@
       align-items: center;
       min-height: 100vh;
       padding: 16px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom)); /* iOS safe area adjustment */
     }
     .app-container {
       background: #1e293b;
@@ -469,23 +473,6 @@
     .error-msg.show {
       display: block;
     }
-
-    /* admin panel specific */
-    .admin-box { background: #1e293b; padding: 20px; border-radius: 20px; border: 1px solid #7c3aed; }
-    .btn-declare { width: 100%; padding: 14px; background: #7c3aed; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 5px; }
-    .text-win { color: #10b981; font-weight: bold; } .text-lose { color: #ef4444; }
-    .section-box { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; }
-    .btn-approve { background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; margin-right: 4px; }
-    .btn-reject { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; }
-    .badge-pending { background: #f59e0b; color: #0f172a; padding: 3px 8px; border-radius: 12px; font-size: 10px; }
-    .badge-approved { background: #10b981; color: white; padding: 3px 8px; border-radius: 12px; font-size: 10px; }
-    .badge-rejected { background: #ef4444; color: white; padding: 3px 8px; border-radius: 12px; font-size: 10px; }
-    .section-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .count-badge { background: #ef4444; color: white; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
-    .flex-grid { display: flex; gap: 10px; }
-    .flex-col { flex: 1; }
-    .payment-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; display: block; }
   </style>
 </head>
 <body>
@@ -506,10 +493,29 @@
         <label>🔐 လျှို့ဝှက်နံပါတ်</label>
         <input type="password" id="loginPass" class="input-field" placeholder="••••••••">
       </div>
-      <div style="margin-top: 10px; font-size: 11px; color: #666;">
-    🔐 <a href="admin.html" style="color: #f59e0b;">ဒိုင်ချုပ် ဝင်ရောက်ရန်</a>
-</div>
+      
       <button class="btn-main" onclick="handleLogin()">လော့ဂ်အင် ဝင်မည်</button>
+      
+      <!-- Google Sign In Area -->
+      <div style="margin: 20px 0; display: flex; justify-content: center;">
+        <div id="g_id_onload"
+             data-client_id="149074633352-khvfq3arilqcohqpv1a5ra65h8eric6q.apps.googleusercontent.com"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="pill"
+             data-theme="filled_blue"
+             data-text="signin_with"
+             data-size="large"
+             data-logo_alignment="left">
+        </div>
+      </div>
+
       <span class="toggle-link" onclick="showSection('registerSection')">🆕 အကောင့်သစ်ဖွင့်ရန်</span>
     </div>
          
@@ -573,13 +579,15 @@
         </div>
         <div class="section-card">
           <h3 style="color:#38bdf8; margin-top:0;">🎰 2D Htoe Yan</h3>
-          <input type="number" id="betNumber" class="input-field" placeholder="00-99" style="margin-bottom:10px;">
+          <!-- 💡 ပြင်ဆင်ချက် - type="text" သို့ပြောင်းလဲပြီး 0 ရှေ့ကခံရိုက်နိုင်ရန် ပြုလုပ်ထားသည် -->
+          <input type="text" id="betNumber" class="input-field" placeholder="00-99" maxlength="2" inputmode="numeric" pattern="[0-9]*" style="margin-bottom:10px;">
           <input type="number" id="betAmount" class="input-field" placeholder="Thone Kyay" style="margin-bottom:10px;">
           <button class="btn-main" style="margin:0;" onclick="place2DBet()">2D Htoe Myal</button>
         </div>
         <div class="section-card">
           <h3 style="color:#f59e0b; margin-top:0;">🎰 3D Htoe Yan</h3>
-          <input type="number" id="betNumber3D" class="input-field" placeholder="000-999" style="margin-bottom:10px;">
+          <!-- 💡 ပြင်ဆင်ချက် - type="text" သို့ပြောင်းလဲပြီး 000 ရှေ့ကခံရိုက်နိုင်ရန် ပြုလုပ်ထားသည် -->
+          <input type="text" id="betNumber3D" class="input-field" placeholder="000-999" maxlength="3" inputmode="numeric" pattern="[0-9]*" style="margin-bottom:10px;">
           <input type="number" id="betAmount3D" class="input-field" placeholder="Thone Kyay" style="margin-bottom:10px;">
           <button class="btn-main btn-3d" style="margin:0;" onclick="place3DBet()">3D Htoe Myal</button>
         </div>
@@ -680,7 +688,7 @@
         <button class="copy-btn" onclick="copyText(document.getElementById('kpayPhoneDisplay').innerText)">Copy</button>
       </div>
       
-<input type="text" id="kpayTxCode" class="input-field" placeholder="နောက်ဆုံးဂဏန်း ၅ လုံး" maxlength="5" inputmode="numeric" pattern="[0-9]*">
+      <input type="text" id="kpayTxCode" class="input-field" placeholder="နောက်ဆုံးဂဏန်း ၅ လုံး" maxlength="5" inputmode="numeric" pattern="[0-9]*">
       <input type="text" id="kpaySenderName" class="input-field" placeholder="Your Name">
       <div class="info-row"><span>💎 Amount : </span><strong id="kpayFinalAmount">0 MMK</strong></div>
       <button class="confirm-btn" style="background:#00aa44;" onclick="submitDeposit('kpay')">✅ Transferred</button>
@@ -729,6 +737,29 @@
 
     function getBalanceKey(phone) { return 'balance_' + phone; }
     function getAvatarKey(phone) { return 'avatar_' + phone; }
+
+    // ============ GOOGLE LOGIN CALLBACK ============
+    // 💡 ပြင်ဆင်ချက် - Google Authentication အတွက် Callback ပေါင်းထည့်ထားသည်
+    function handleCredentialResponse(response) {
+      try {
+        const payload = JSON.parse(atob(response.credential.split('.')[1]));
+        const email = payload.email;
+        const name = payload.name;
+        
+        // ဖုန်းနံပါတ်မရှိသောကြောင့် အီးမေးလ်ကို ID အဖြစ်အသုံးပြုပြီး ယာယီအကောင့်ဆောက်ပေးသည်
+        let users = JSON.parse(localStorage.getItem('users2DDatabase') || '{}');
+        if (!users[email]) {
+          users[email] = "google_auth_user"; // စကားဝှက်မလိုအပ်ဘဲဝင်ရန်
+          localStorage.setItem('users2DDatabase', JSON.stringify(users));
+          localStorage.setItem(getBalanceKey(email), '0');
+        }
+        
+        alert(`✅ Google ဖြင့် အောင်မြင်စွာဝင်ရောက်ပြီးပါပြီ။\nကြိုဆိုပါတယ် ${name}`);
+        loginUser(email);
+      } catch (error) {
+        alert("Google ဖြင့်ဝင်ရောက်ရာတွင် အခက်အခဲရှိနေပါသည်။");
+      }
+    }
 
     // ============ SECTION SWITCHING ============
     function showSection(id) {
@@ -790,7 +821,7 @@
       alert('🔒 ကိုယ်ရေးအချက်အလက် မူဝါဒ\n\n' +
         '• သင့်ဖုန်းနံပါတ်ကို အကောင့်ဖွင့်ရန်အတွက်သာ အသုံးပြုပါသည်။\n' +
         '• သင့်အချက်အလက်များကို ပြင်ပသို့ မျှဝေခြင်းမပြုပါ။\n' +
-        '• ငွေပေးချေမှုအချက်အလက်များကို လုံခြုံစွာ သိမ်းဆည်းထားပါသည်။\n' +
+        '• Ngweပေးချေမှုအချက်အလက်များကို လုံခြုံစွာ သိမ်းဆည်းထားပါသည်။\n' +
         '• အကောင့်ဖျက်သိမ်းလိုပါက ဒိုင်ချုပ်ထံ ဆက်သွယ်နိုင်ပါသည်။');
     }
 
@@ -897,7 +928,13 @@
       const amt = parseInt(document.getElementById('betAmount').value);
       if (!activeUser) return;
       let bal = parseInt(localStorage.getItem(getBalanceKey(activeUser)) || '0');
-      if (num.length !== 2 || isNaN(amt) || amt <= 0 || amt > bal) { alert("အချက်အလက်မှား"); return; }
+      
+      // 💡 ပြင်ဆင်ချက် - input text ဖြစ်သွားသည့်အတွက် ဂဏန်းစစ်ဆေးမှုကို တင်းကျပ်ထားသည်
+      if (num.length !== 2 || isNaN(num) || isNaN(amt) || amt <= 0 || amt > bal) { 
+        alert("ထိုးဂဏန်း (သို့) ထိုးကြေးငွေ ပမာဏမှားယွင်းနေပါသည်"); 
+        return; 
+      }
+      
       localStorage.setItem(getBalanceKey(activeUser), (bal - amt).toString());
       let bets = JSON.parse(localStorage.getItem('twod_bets') || '[]');
       bets.push({ user: activeUser, number: num, amount: amt, status: 'PENDING', date: getFormattedDateTime() });
@@ -914,7 +951,13 @@
       const amt = parseInt(document.getElementById('betAmount3D').value);
       if (!activeUser) return;
       let bal = parseInt(localStorage.getItem(getBalanceKey(activeUser)) || '0');
-      if (num.length !== 3 || isNaN(amt) || amt <= 0 || amt > bal) { alert("အချက်အလက်မှား"); return; }
+      
+      // 💡 ပြင်ဆင်ချက် - input text ဖြစ်သွားသည့်အတွက် ဂဏန်းစစ်ဆေးမှုကို တင်းကျပ်ထားသည်
+      if (num.length !== 3 || isNaN(num) || isNaN(amt) || amt <= 0 || amt > bal) { 
+        alert("ထိုးဂဏန်း (သို့) ထိုးကြေးငွေ ပမာဏမှားယွင်းနေပါသည်"); 
+        return; 
+      }
+      
       localStorage.setItem(getBalanceKey(activeUser), (bal - amt).toString());
       let bets = JSON.parse(localStorage.getItem('bets3D') || '[]');
       bets.push({ user: activeUser, number: num, amount: amt, status: 'PENDING', date: getFormattedDateTime() });
@@ -1022,7 +1065,7 @@
       openModal(currentDepositPayment + 'TransferModal');
     }
 
-        function submitDeposit(type) {
+    function submitDeposit(type) {
       const tx = document.getElementById(type + 'TxCode').value;
       const name = document.getElementById(type + 'SenderName').value;
       const amt = parseInt(document.getElementById('depAmt').value) || 0;
@@ -1034,7 +1077,7 @@
         amount: amt,
         method: type,
         txCode: tx,
-        last5: tx,           // 👈 ဤစာကြောင်းအသစ်ကို ထည့်ပေးလိုက်ပါပြီ (Admin ဖတ်ဖို့အတွက်)
+        last5: tx,           
         senderName: name,
         status: 'PENDING',
         date: getFormattedDateTime(),
@@ -1046,8 +1089,6 @@
       document.getElementById('depAmt').value = 5000;
       updateDashboardUI();
     }
-
-        
 
     function submitWithdraw() {
       const method = currentWithdrawPayment;
