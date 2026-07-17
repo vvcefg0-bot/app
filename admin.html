@@ -76,9 +76,19 @@
     <div id="adminPanelSection" class="hidden">
       <div class="admin-box">
         <h2 style="text-align:center; color:#a78bfa; margin-top:0;">Anoma 2D ဒိုင်ချုပ် Panel</h2>
+        
         <div class="flex-row" style="margin-bottom:15px;">
           <span class="logout-text" onclick="adminLogout()">ထွက်မည်</span>
           <span style="color:#10b981;">အွန်လိုင်း</span>
+        </div>
+
+        <!-- 🔑 Admin Password Change Section (ဒိုင်ချုပ်စကားဝှက်ပြောင်းရန်နေရာ) -->
+        <div class="section-box">
+          <h3 style="color:#ef4444; margin-top:0; font-size:14px; text-align:left; margin-bottom:8px;">🔑 ဒိုင်ချုပ် Password ပြောင်းရန်</h3>
+          <div style="display:flex; gap:6px;">
+            <input type="password" id="newAdminPassInput" class="input-field" placeholder="စကားဝှက်အသစ်" style="flex:2;">
+            <button class="btn-main" style="flex:1; padding:10px; font-size:13px; margin-top:0;" onclick="changeAdminPassword()">ပြောင်းမည်</button>
+          </div>
         </div>
 
         <!-- 2D/3D Toggle Buttons -->
@@ -190,6 +200,18 @@
       document.getElementById('adminPanelSection').classList.add('hidden');
       document.getElementById('adminLoginSection').classList.remove('hidden');
       document.getElementById('adminPassInput').value = '';
+    }
+
+    // ============ CHANGE PASSWORD FUNCTION ============
+    function changeAdminPassword() {
+      const newPass = document.getElementById('newAdminPassInput').value.trim();
+      if (newPass.length < 4) { 
+        alert('စကားဝှက် အနည်းဆုံး ၄လုံး ရှိရပါမည်။'); 
+        return; 
+      }
+      localStorage.setItem('adminPassword', newPass);
+      document.getElementById('newAdminPassInput').value = '';
+      alert('Admin Password ပြောင်းပြီးပါပြီ။ နောက်တစ်ကြိမ် လော့ဂ်အင်ဝင်လျှင် စကားဝှက်အသစ်ဖြင့် ဝင်ရောက်ပါ။');
     }
 
     // ============ LOAD DATA ============
@@ -306,7 +328,6 @@
     }
 
     function refreshTransactionModal() {
-      // ၁။ ဒေတာ ထပ်နေခြင်း လုံးဝမရှိစေရန် သီးခြား Key များ သတ်မှတ်ပြီး ဆွဲထုတ်သည်
       const depReqs = JSON.parse(localStorage.getItem('deposit_requests') || '[]').map(r => ({
         ...r, 
         isDeposit: true,
@@ -318,7 +339,6 @@
         storageKey: 'withdraw_requests' 
       }));
       
-      // ၂။ ငွေသွင်း၊ ငွေထုတ် နှစ်ခုလုံးကို အချိန်အလိုက် စီသည်
       const all = [...depReqs, ...wReqs].sort((a, b) => {
         if (a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
         return new Date(b.date) - new Date(a.date);
@@ -339,14 +359,9 @@
           statusDisplay = `<span class="badge ${sc}">${st}</span>`;
         }
         
-        // ၃။ ဘဏ်အမျိုးအစား (Kpay သို့ Wave) ရှာဖွေခြင်း
         let bankMethod = (r.method || r.bank || r.bankType || 'kpay').toLowerCase();
-        
-        // ၄။ ★★★ [အရေးကြီးဆုံးပြင်ဆင်ချက်] နံပါတ် ၅ လုံး သို့မဟုတ် ဖုန်းနံပါတ် လုံးဝ ပျောက်မသွားစေရန် Fallback ရှာဖွေခြင်း ★★★
-        // User ဘက်က သိမ်းထားနိုင်သမျှ Variable Name အကုန်လုံးကို လိုက်စစ်ထုတ်ပြီး ပြပေးပါတယ်
         let referenceNo = r.last5 || r.transaction_id || r.transactionId || r.txid || r.phone || r.account || r.phoneNo || '';
         
-        // အကယ်၍ အပေါ်က Variable တွေထဲမှာ တစ်ခုမှမရှိရင် object တစ်ခုလုံးထဲက နံပါတ်ပါတာကို လိုက်ရှာပါမယ်
         if (!referenceNo) {
           for (let key in r) {
             if (typeof r[key] === 'string' && r[key].trim().length >= 5 && !isNaN(r[key])) {
@@ -355,7 +370,7 @@
             }
           }
         }
-        if (!referenceNo) referenceNo = '-'; // တကယ်လို့ လုံးဝမပါခဲ့ရင်တော့ '-' ပြပါမယ်
+        if (!referenceNo) referenceNo = '-';
 
         let typeText = r.isDeposit ? 'ငွေသွင်း' : 'ငွေထုတ်';
         
@@ -431,7 +446,7 @@
       });
       let html = '';
       bets.forEach(b => {
-        let st = b.status === 'WIN' ? 'နိုင်' : (b.status === 'LOSE' ? 'ရှုံး' : 'စောင့်ဆိုင်း');
+        let  st = b.status === 'WIN' ? 'နိုင်' : (b.status === 'LOSE' ? 'ရှုံး' : 'စောင့်ဆိုင်း');
         let sc = b.status === 'WIN' ? 'bg-win' : (b.status === 'LOSE' ? 'bg-lose' : 'bg-pending');
         html += `<tr>
           <td>${b.date || '-'}</td>
